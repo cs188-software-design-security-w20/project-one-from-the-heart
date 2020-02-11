@@ -18,13 +18,9 @@ const firebaseConfig = {
 const firebase = require('firebase');
 firebase.initializeApp(firebaseConfig);
 
-const db = admin.firestore();
+const db = admin.firestore();//a function that whenever we need firestore, we just call db
 // // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
-
-exports.helloWorld = functions.https.onRequest((request, response) => {
- response.send("Hello from Firebase!");
-});
 
 app.get('/tickets', (req, res) => {
   db
@@ -88,7 +84,7 @@ app.post('/signup', (req,res) => {
         password: req.body.password,
         confirm_password: req.body.confirm_password,
     };
-    //TODO: validate data
+  
     let errors = {};
     if(isEmpty(newUser.email)) {
       errors.email = "Must not be empty"
@@ -148,19 +144,31 @@ app.post('/signup', (req,res) => {
     });
 });
 
+app.post('/login',(req, res)=>{
+  const user = {
+    email: req.body.email,
+    password: req.body.password
+  };
+let errors = {}
+
+if(isEmpty(user.email)) errors.email = 'Must not be empty';
+if(isEmpty(user.password)) errors.password = 'Must not be empty';
+
+if (Object.keys(errors).length > 0) return res.status(400).json(errors);
+
+firebase.auth().signInWithEmailAndPassword(user.email,user.password)
+.then(data=>{
+  return data.user.getIdToken();
+})
+.then(token=>{
+  return res.json({token});
+})
+.catch(err=>{
+  console.error(err);
+  if(err.code === 'auth/wrong-password'){
+    return res.status(403).json({general: 'Wrong credentials, please try again'});
+  } else return res.status(500).json({error:err.code});
+});
+});
+
 exports.api = functions.https.onRequest(app);
-
-exports.reduceUserDetails = (data) => {
-  let userDetails = {};
-
-  if (!isEmpty(data.bio.trim())) userDetails.bio = data.bio;
-  if (!isEmpty(data.website.trim())) {
-    // https://website.com
-    if (data.website.trim().substring(0, 4) !== 'http') {
-      userDetails.website = `http://${data.website.trim()}`;
-    } else userDetails.website = data.website;
-  }
-  if (!isEmpty(data.location.trim())) userDetails.location = data.location;
-
-  return userDetails;
-};
