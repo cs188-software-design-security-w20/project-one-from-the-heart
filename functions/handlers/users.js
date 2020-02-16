@@ -41,7 +41,7 @@ exports.signup = (req,res) => {
         const userCredentials = {
           email: newUser.email,
           created_at: new Date().toISOString(),
-          userId: userId
+          user_id: userId
         }
         //maybe unsafe to use string eval here
         return db.doc(`/users/${newUser.email}`).set(userCredentials);

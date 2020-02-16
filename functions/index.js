@@ -1,18 +1,15 @@
 const functions = require('firebase-functions');
 const app = require('express')();
+const FBAuth = require('./util/fbAuth');
 
 const { getAllTickets, postOneTicket } = require('./handlers/tickets');
 const{signup, login} = require('./handlers/users');
 
-// Initialize Firebase
-//const db = admin.firestore();
-//a function that whenever we need firestore, we just call db
-// // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
 
 // Tickets routes
 app.get('/tickets', getAllTickets);
-app.post('/ticket', postOneTicket);
+app.post('/ticket', FBAuth, postOneTicket);
 
 // Users Routes
 app.post('/signup', signup);
