@@ -13,8 +13,9 @@ exports.signup = (req,res) => {
         email: req.body.email,
         password: req.body.password,
         confirm_password: req.body.confirm_password,
+        tenant_name: req.body.first_name + " " + req.body.last_name
     };
-  
+
     const{ valid, errors } = validateSignupData(newUser);
 
     if(!valid) return res.status(400).json(errors);
@@ -41,7 +42,8 @@ exports.signup = (req,res) => {
         const userCredentials = {
           email: newUser.email,
           created_at: new Date().toISOString(),
-          user_id: userId
+          user_id: userId,
+          tenant_name: newUser.tenant_name
         }
         //maybe unsafe to use string eval here
         return db.doc(`/users/${newUser.email}`).set(userCredentials);

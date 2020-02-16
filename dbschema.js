@@ -23,9 +23,6 @@ let db = {
       "email": "user@email.com",
       "password": "12345",
       "confirm_password": "12345",
-
-
     }
   ]
-
 }
