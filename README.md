@@ -1,5 +1,4 @@
-# project-one-from-the-heart
-## Maintenance Genie
+# Maintenance Genie
 
 ## Setup
 
