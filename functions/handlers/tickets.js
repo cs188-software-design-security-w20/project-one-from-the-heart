@@ -37,6 +37,12 @@ exports.getAllTickets = (req, res) => {
     .collection('/tickets')
     .add(newTicket)
     .then(doc => {
+      db
+      .collection('/users')
+      .doc(`${req.user.email}`)
+      .update({
+        requested_tickets: admin.firestore.FieldValue.arrayUnion(`${doc.id}`)
+      });
       return res.json({message: `document ${doc.id} created successfully`});
     })
     .catch( err => {
