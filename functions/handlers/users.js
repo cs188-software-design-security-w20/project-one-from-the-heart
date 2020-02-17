@@ -50,6 +50,7 @@ exports.signup = (req,res) => {
 
     })
     .then(() => {
+      res.set('Access-Control-Allow-Origin', '*');
       return res.status(201).json({ token });
     })
     .catch((err)=>{
