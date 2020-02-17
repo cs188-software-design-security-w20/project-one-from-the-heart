@@ -46,25 +46,29 @@ exports.getAllTickets = (req, res) => {
   };
 
   exports.getWorkersTickets = (req, res) => {
+
+    var ticketsRef = new db.collection('/workers')
       db
-      .collection('tickets')
-            //warning template string may be insecure
-      .doc(req.worker.assigned_ticket)
-      .get()
-      .then( doc => {
-          let tickets = [];
+      .collection('/workers')
+      .doc(`${req.worker.email}`)
+      .get('assigned_tickets')
+      .then( userTickets => {
+        var i = 0;
+        let tickets = [];
+        userTickets.forEach( ticket => {
           tickets.push({
-            ticket_id: doc.id,
-            address: doc.data().address,
-            description: doc.data().description,
-            priority: doc.data().priority,
-            submit_time: doc.data().submit_time,
-            special_insns: doc.data().special_insns,
-            tenant_name: doc.data().tenant_name
+            ticket_id: ticket.id,
+            address: ticket.data().address,
+            description: ticket.data().description,
+            priority: ticket.data().priority,
+            submit_time: ticket.data().submit_time,
+            special_insns: ticket.data().special_insns,
+            tenant_name: ticket.data().tenant_name
               });
-                return res.json(tickets);
             })
-        .catch((err) => {
+        return res.json(tickets);
+      })
+      .catch((err) => {
           console.error(err)
-        })
+      })
   };

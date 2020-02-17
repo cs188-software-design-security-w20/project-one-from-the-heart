@@ -21,16 +21,16 @@ module.exports = (req, res, next) => {
           //throw an error
       // } else {
 
-      let workerDoc =
-        db
-        .collection('workers')
-        //template string may be unsafe
-        .doc(req.worker.email)
+    let workerDoc =
+    db
+    .collection('workers')
+    .doc(req.worker.email)
 
-      workerDoc
-      .get()
-      .then((doc) => {
-        req.worker.assigned_ticket = doc.data().assigned_ticket;
+    workerDoc
+    .get()
+    .then((doc) => {
+        req.worker.email = doc.data().email
+        req.worker.assigned_tickets = doc.data().assigned_tickets
         return next();
     })
     .catch((err) => {
