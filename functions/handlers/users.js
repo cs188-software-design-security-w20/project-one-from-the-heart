@@ -13,7 +13,7 @@ exports.signup = (req,res) => {
         email: req.body.email,
         password: req.body.password,
         confirm_password: req.body.confirm_password,
-        tenant_name: req.body.first_name + " " + req.body.last_name
+        tenant_name: req.body.full_name
     };
 
     const{ valid, errors } = validateSignupData(newUser);
@@ -50,6 +50,7 @@ exports.signup = (req,res) => {
 
     })
     .then(() => {
+      res.set('Access-Control-Allow-Origin', '*');
       return res.status(201).json({ token });
     })
     .catch((err)=>{
