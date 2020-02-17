@@ -3,6 +3,10 @@ const app = require('express')();
 const FBAuth = require('./util/fbAuth');
 const FBAuthWorker = require('./util/fbAuthWorker')
 
+//CORS
+const cors = require('cors');
+app.use(cors());
+
 const { getAllTickets, postOneTicket, getWorkersTickets } = require('./handlers/tickets');
 const{signup, login} = require('./handlers/users');
 
