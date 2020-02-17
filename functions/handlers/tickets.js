@@ -46,29 +46,44 @@ exports.getAllTickets = (req, res) => {
   };
 
   exports.getWorkersTickets = (req, res) => {
+      let tickets = []
+      for(let ticket_id in req.worker.assigned_tickets)
+      {
+        //console.log()
+        db
+        .collection('/tickets')
+        .doc(req.worker.assigned_tickets[ticket_id])
+        .get()
+        .then( doc => {
+          tickets.push(doc.data());
+          if(Number(ticket_id) === req.worker.assigned_tickets.length - 1)
+          {
+            return res.json(tickets);
+          }
+        })
+        .catch( err => {
+          console.error(err);
+        })
+      }
+  };
 
-    var ticketsRef = new db.collection('/workers')
-      db
-      .collection('/workers')
-      .doc(`${req.worker.email}`)
-      .get('assigned_tickets')
-      .then( userTickets => {
-        var i = 0;
-        let tickets = [];
-        userTickets.forEach( ticket => {
-          tickets.push({
-            ticket_id: ticket.id,
-            address: ticket.data().address,
-            description: ticket.data().description,
-            priority: ticket.data().priority,
-            submit_time: ticket.data().submit_time,
-            special_insns: ticket.data().special_insns,
-            tenant_name: ticket.data().tenant_name
-              });
-            })
-        return res.json(tickets);
+  exports.closeTicket = (req, res) => {
+    const document = db.doc(`/tickets/${req.params.ticket_id}`);
+    document
+      .get()
+      .then((doc) => {
+        if (!doc.exists) {
+          return res.status(404).json({ error: 'Ticket not found' });
+        }
+        else {
+          return document.delete();
+        }
+      })
+      .then(() => {
+        res.json({ message: 'Ticket closed successfully' });
       })
       .catch((err) => {
-          console.error(err)
-      })
+        console.error(err);
+        return res.status(500).json({ error: err.code });
+      });
   };

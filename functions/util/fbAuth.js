@@ -26,9 +26,7 @@ module.exports = (req, res, next) => {
         .get();
     })
     .then((data) => {
-      req.user.user_id = data.docs[0].data().user_id;
-      req.user.created_at = data.docs[0].data().created_at;
-      req.user.tenant_name = data.docs[0].data().tenant_name;
+      req.user.user_id = data.docs[0].data().user_id; 
       return next();
     })
     .catch((err) => {
