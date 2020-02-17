@@ -24,8 +24,7 @@ module.exports = (req, res, next) => {
         .get();
     })
     .then((data) => {
-      req.user.user_id = data.docs[0].data().user_id;
-    
+      req.user.user_id = data.docs[0].data().user_id; 
       return next();
     })
     .catch((err) => {
