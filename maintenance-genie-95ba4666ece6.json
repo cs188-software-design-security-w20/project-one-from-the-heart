@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "maintenance-genie",
+  "private_key_id": "95ba4666ece6acb04b79bde4f440eafdf2e9190d",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCrZT/GSyieFOyH\nX6X8wwLF9aQrdPRpxCb1uM1i1hvIf74SwTReLseN6qpD2s55bF4HT4Rv8erp28oW\nljLhfA7o2edFmo6yVHJ2D6PUlJg5FrBEP8hQ612E6VpnytQGtj159iEo7U/mDsuW\n6oS/VO0Blrveg2LKFOdOiuPQj8oprnK+dz+aBIZRysMWtnkUDkvqRV2haOKq6Zj7\nE0yNF9LP2hSCwxDxroTlVI2p0LRWLWzrnEsFXmyIULlaTm/EqKckyswFwV2q3UVV\nncSxnzHnPy7+zjRqibaChBS5h+/W9dT0FtfW6ZuQ+V2nYJ9TZWo+lrYw+iTLS2of\n0HHw9Tr5AgMBAAECggEANabdHtJ6JXoBTKMZT5Uv8g3h1SSoOc+ILpUp3c2OJuYt\n9qr6HJ1iJD+YCuOcjI/qozk2CODem1QM36MmzETMWgGUDsrB7nrW1bQxoaLeP8il\nZsfcidATlz6A6UqpsmwrtFjiqnAW+boZ6uUApvALvNqVdqMEMqP2gDSj+a55JzCM\nFxNjQ7nCpCB5dh3sf7+IbS42ePEldNYsfKc2m9SuouPKYQOpuYTlWsNAYdMz8gQt\nNfb31cjugwL9ExfgJRyDRnsgkrlK6OTem0moLWok2qzVI3Al25OEG1Owlbt8bLMa\nI9F2aCP7UPPQW513KaU7UhMpWYQhymJ0bnxc3d4z3QKBgQDfxeo4PL/ySX4h9YL7\nuDOx4fqc3C9WMsfDirhrhnlC6YIDazGK70iEz79mpAxLl3b727SoQwJJhsno9pXs\n7Jh/kGkOwaTCXEF+bhi7OboXXU5XPiv5r0CRvIA8qiMdU6ddElpCFIsPLzb5KkMQ\nCIxppsUCSca/HEfizNi8YOv7NwKBgQDEFEXFc1ekHmwuPl8YT4MZWxrgbUelBwrk\n1viLNZ93m/DaMDaba6X3s/EhhLr9ma/ZnoJGJUTPdkIkjqKyBqmplSAgMufDmS8O\nd7UcjB5tZkSm4fK89mR9Bk7EXQ9qk2KMaQKsxl7BOtlmOvsPGPpbtWAHehGZ41JC\nRJHdyn9zTwKBgEXA/wLqxPa0vBG/40WuJMclZyawaD0ZdTXaLyStdW1LNtD0ACyL\n7HIiBErthjumClv2H7l3seXTk2sAOrnxApR5IpaL/Fztvyi3DxSFqSGRX1NIuRKK\n87i6JstCSdHhesFDcEk6+CISmLNQ3jjIQWTJrI3LC54VJb9oFYObPtQ/AoGAFX8n\nexM/K4YOVC+QW2j0NYZwduRkM2qHPjl3PEPfvMxC5pjck8OEiZiXuhYELiN4TQJ8\nw9X4KkqLy9g7bAsg9K+duwn5sM8NgqeLGpseBt5sbmNdKmxU7gQQBKUzOHr6Fey5\nV1nUL5kVFokm1yvk3sMOySMP5PAwJ4W+/DLkMC8CgYBev3Et1/Wv5Q/NHNoNhu8s\nxsHJLiBFzGyt76BMmHwnCWH8tRP6NbOnPlg2EPMHlT80uj9VTvfjFLvmWtUqcV60\nfWX9aFKHyup8us2s/fUVQaGSKlYoU49izfGLTZLVTwg6t9y2ws5xzgu5uG2Z4FQ3\nZfizl6l/ZIhmV5+1wIDSxw==\n-----END PRIVATE KEY-----\n",
+  "client_email": "maintenance-genie@appspot.gserviceaccount.com",
+  "client_id": "111630623806180471803",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/maintenance-genie%40appspot.gserviceaccount.com"
+}

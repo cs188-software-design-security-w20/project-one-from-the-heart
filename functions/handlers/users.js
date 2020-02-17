@@ -13,8 +13,9 @@ exports.signup = (req,res) => {
         email: req.body.email,
         password: req.body.password,
         confirm_password: req.body.confirm_password,
+        tenant_name: req.body.first_name + " " + req.body.last_name
     };
-  
+
     const{ valid, errors } = validateSignupData(newUser);
 
     if(!valid) return res.status(400).json(errors);
@@ -41,7 +42,8 @@ exports.signup = (req,res) => {
         const userCredentials = {
           email: newUser.email,
           created_at: new Date().toISOString(),
-          user_id: userId
+          user_id: userId,
+          tenant_name: newUser.tenant_name
         }
         //maybe unsafe to use string eval here
         return db.doc(`/users/${newUser.email}`).set(userCredentials);
@@ -55,7 +57,7 @@ exports.signup = (req,res) => {
         if (err.code === 'auth/email-already-in-use') {
           return res.status(400).json({ email: 'email is already in use'})
         }
-        return res.status(500).json({error: err.code});
+        return res.status(500).json({general: 'Something went wrong, please try again'});
     });
 }
 
@@ -78,8 +80,8 @@ if(!valid) return res.status(400).json(errors);
   })
   .catch(err=>{
     console.error(err);
-    if(err.code === 'auth/wrong-password'){
-      return res.status(403).json({general: 'Wrong credentials, please try again'});
-    } else return res.status(500).json({error:err.code});
+      return res
+          .status(403)
+          .json({general: 'Wrong credentials, please try again'});
   });
   }

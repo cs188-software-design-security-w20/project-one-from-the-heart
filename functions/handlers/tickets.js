@@ -1,4 +1,4 @@
-const {db} = require('../util/admin');
+const {admin, db} = require('../util/admin');
 
 exports.getAllTickets = (req, res) => {
     db
@@ -9,7 +9,7 @@ exports.getAllTickets = (req, res) => {
         let tickets = [];
         data.forEach((doc) => {
           tickets.push({
-          ticketId: doc.id,
+          ticket_id: doc.id,
           address: doc.data().address,
           description: doc.data().description,
           priority: doc.data().priority,
@@ -32,7 +32,7 @@ exports.getAllTickets = (req, res) => {
       special_insns: req.body.special_insns,
       tenant_name: req.body.tenant_name
     };
-  
+
     db
     .collection('/tickets')
     .add(newTicket)
@@ -43,4 +43,49 @@ exports.getAllTickets = (req, res) => {
       res.status(500).json({error: 'something went wrong'});
       console.error(err);
     })
+  };
+
+  exports.getWorkersTickets = (req, res) => {
+      db
+      .collection('tickets')
+            //warning template string may be insecure
+      .doc(req.worker.assigned_ticket)
+      .get()
+      .then( doc => {
+          let tickets = [];
+          tickets.push({
+            ticket_id: doc.id,
+            address: doc.data().address,
+            description: doc.data().description,
+            priority: doc.data().priority,
+            submit_time: doc.data().submit_time,
+            special_insns: doc.data().special_insns,
+            tenant_name: doc.data().tenant_name
+              });
+                return res.json(tickets);
+            })
+        .catch((err) => {
+          console.error(err)
+        })
+  };
+
+  exports.closeTicket = (req, res) => {
+    const document = db.doc(`/tickets/${req.params.ticket_id}`);
+    document
+      .get()
+      .then((doc) => {
+        if (!doc.exists) {
+          return res.status(404).json({ error: 'Ticket not found' });
+        }
+        else {
+          return document.delete();
+        }
+      })
+      .then(() => {
+        res.json({ message: 'Ticket closed successfully' });
+      })
+      .catch((err) => {
+        console.error(err);
+        return res.status(500).json({ error: err.code });
+      });
   };

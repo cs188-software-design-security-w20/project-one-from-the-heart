@@ -2,6 +2,7 @@ const { admin, db } = require('./admin');
 
 module.exports = (req, res, next) => {
   let idToken;
+  //let user;
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith('Bearer ')
@@ -18,8 +19,9 @@ module.exports = (req, res, next) => {
     .then((decodedToken) => {
       req.user = decodedToken;
       return db
+        //template string may be insecure
         .collection('users')
-        .where('user_id', '==', req.user.email)
+        .where('email', '==', req.user.email)
         .limit(1)
         .get();
     })
