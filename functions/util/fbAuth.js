@@ -1,6 +1,6 @@
 const { admin, db } = require('./admin');
 
-module.exports = (req, res, next) => {
+exports.FBAuth = (req, res, next) => {
   let idToken;
   //let user;
   if (
@@ -32,11 +32,81 @@ module.exports = (req, res, next) => {
       req.user.user_id = data.docs[0].data().user_id;
       if(data.docs[0].data().requested_tickets)
         req.user.requested_tickets = data.docs[0].data().requested_tickets;
-      //req.user.email = data.docs[0].data().email;
+      req.user.email = data.docs[0].data().email;
+      req.user.full_name = data.docs[0].data().full_name;
+      req.user.address = data.docs[0].data().address;
       return next();
     })
     .catch((err) => {
       console.error('Error while verifying token ', err);
       return res.status(403).json(err);
     });
+};
+
+exports.FBAuthWorker = (req, res, next) => {
+  let workerToken;
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer ')
+  ) {
+    workerToken = req.headers.authorization.split('Bearer ')[1];
+  } else {
+    console.error('No token found');
+    return res.status(403).json({ error: 'Unauthorized' });
+  }
+  admin
+    .auth()
+    .verifyIdToken(workerToken)
+    .then((decodedToken) => {
+      req.worker = decodedToken;
+
+    return db
+    .collection('workers')
+    .doc(req.worker.email)
+    .get()
+    })
+    .then((doc) => {
+        req.worker.email = doc.data().email;
+        if(doc.data().assigned_tickets)
+          req.worker.assigned_tickets = doc.data().assigned_tickets;
+        req.worker.full_name = data.docs[0].data().full_name;
+        return next();
+    })
+    .catch((err) => {
+      console.error('Error while verifying token ', err);
+      return res.status(403).json(err);
+  })
+};
+
+exports.FBAuthLL = (req, res, next) => {
+  let landlordToken;
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer ')
+  ) {
+    landlordToken = req.headers.authorization.split('Bearer ')[1];
+  } else {
+    console.error('No token found');
+    return res.status(403).json({ error: 'Unauthorized' });
+  }
+  admin
+    .auth()
+    .verifyIdToken(landlordToken)
+    .then((decodedToken) => {
+      req.landlord = decodedToken;
+
+    return db
+    .collection('landlord')
+    .doc(req.landlord.email)
+    .get()
+    })
+    .then((doc) => {
+        req.landlord.email = doc.data().email;
+        req.landlord.full_name = doc.data().full_name;
+        return next();
+    })
+    .catch((err) => {
+      console.error('Error while verifying token ', err);
+      return res.status(403).json(err);
+  })
 };

@@ -45,7 +45,10 @@ exports.signup = (req,res) => {
           created_at: new Date().toISOString(),
           user_id: userId,
           full_name: newUser.full_name,
-          address: newUser.address
+          address: newUser.address,
+          verified_tenant: false,
+          verified_worker: false,
+          verified_ll: false
         }
         //maybe unsafe to use string eval here
         return db.doc(`/users/${newUser.email}`).set(userCredentials);
