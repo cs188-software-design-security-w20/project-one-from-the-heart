@@ -20,22 +20,19 @@ module.exports = (req, res, next) => {
       // {
           //throw an error
       // } else {
-
-    let workerDoc =
-    db
+    return db
     .collection('workers')
     .doc(req.worker.email)
-
-    workerDoc
     .get()
+    })
     .then((doc) => {
-        req.worker.email = doc.data().email
-        req.worker.assigned_tickets = doc.data().assigned_tickets
+        req.worker.email = doc.data().email;
+        if(doc.data().assigned_tickets)
+          req.worker.assigned_tickets = doc.data().assigned_tickets;
         return next();
     })
     .catch((err) => {
       console.error('Error while verifying token ', err);
       return res.status(403).json(err);
-    })
   })
 };

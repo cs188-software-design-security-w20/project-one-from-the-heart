@@ -18,16 +18,19 @@ module.exports = (req, res, next) => {
     .verifyIdToken(idToken)
     .then((decodedToken) => {
       req.user = decodedToken;
-      return db
-        //template string may be insecure
+
+       return db
         .collection('users')
         .where('email', '==', req.user.email)
         .limit(1)
-        .get();
+        .get()
     })
     .then((data) => {
+      //console.log(data.docs[0].data())
       req.user.user_id = data.docs[0].data().user_id;
-      //req.user.requested_tickets = data.docs[0].data().requested_tickets 
+      if(data.docs[0].data().requested_tickets)
+        req.user.requested_tickets = data.docs[0].data().requested_tickets;
+      //req.user.email = data.docs[0].data().email;
       return next();
     })
     .catch((err) => {

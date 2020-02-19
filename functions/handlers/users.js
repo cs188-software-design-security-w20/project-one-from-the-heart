@@ -6,14 +6,15 @@ const firebase = require('firebase')
 
 firebase.initializeApp(config)
 
-const {validateSignupData, validateLoginData} = require('../util/validators');
+const {validateSignupData, validateLoginData, reduceUserSettings} = require('../util/validators');
 
 exports.signup = (req,res) => {
     const newUser = {
         email: req.body.email,
         password: req.body.password,
         confirm_password: req.body.confirm_password,
-        tenant_name: req.body.full_name
+        full_name: req.body.full_name,
+        address: req.body.address
     };
 
     const{ valid, errors } = validateSignupData(newUser);
@@ -25,7 +26,7 @@ exports.signup = (req,res) => {
     .get()
     .then((doc) => {
         if (doc.exists){
-            return res.status(400).json({handle: 'this email is already taken'});
+            return res.status(400).json({email: 'this email is already taken'});
         }else{
          return firebase
             .auth()
@@ -43,7 +44,8 @@ exports.signup = (req,res) => {
           email: newUser.email,
           created_at: new Date().toISOString(),
           user_id: userId,
-          tenant_name: newUser.tenant_name
+          full_name: newUser.full_name,
+          address: newUser.address
         }
         //maybe unsafe to use string eval here
         return db.doc(`/users/${newUser.email}`).set(userCredentials);
@@ -68,7 +70,7 @@ exports.login = (req, res) => {
       password: req.body.password
     };
 
-const{ valid, errors } = validateLoginData(user);
+const{ valid, verified, errors } = validateLoginData(user);
 
 if(!valid) return res.status(400).json(errors);
 
@@ -77,7 +79,7 @@ if(!valid) return res.status(400).json(errors);
     return data.user.getIdToken();
   })
   .then(token=>{
-    return res.json({token});
+    return res.json({token, verified});
   })
   .catch(err=>{
     console.error(err);
@@ -85,4 +87,23 @@ if(!valid) return res.status(400).json(errors);
           .status(403)
           .json({general: 'Wrong credentials, please try again'});
   });
-  }
+}
+
+exports.editAccount = (req, res) => {
+  const user = {
+    email: req.body.email
+  };
+
+  const { userSettings, changedSetting, previous_email } = reduceUserSettings(user);
+  console.log(userSettings)
+  db
+  .doc(`/users/${previous_email}`)
+  .update(userSettings)
+  .then(() => {
+    return res.json({message: `Updated ${changedSetting} successfully` })
+  })
+  .catch(err => {
+    console.error(err)
+    return res.status(400).json({general: `Please enter valid ${changedSetting}` })
+  })
+}

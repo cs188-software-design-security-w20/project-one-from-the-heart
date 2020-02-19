@@ -15,7 +15,7 @@ exports.getAllTickets = (req, res) => {
           priority: doc.data().priority,
           submit_time: doc.data().submit_time,
           special_insns: doc.data().special_insns,
-          tenant_name: doc.data().tenant_name
+          full_name: doc.data().full_name
         });
       });
         return res.json(tickets);
@@ -23,20 +23,22 @@ exports.getAllTickets = (req, res) => {
       .catch(err => console.error(err));
   }
 
-  exports.postOneTicket = (req, res) => {
+exports.postOneTicket = (req, res) => {
     const newTicket = {
       address: req.body.address,
       description: req.body.description,
       priority: 1,
       submit_time: new Date().toISOString(),
       special_insns: req.body.special_insns,
-      tenant_name: req.body.tenant_name
+      full: req.body.full_name
     };
 
+    //add ticket to tickets collection
     db
     .collection('/tickets')
     .add(newTicket)
     .then(doc => {
+      //add ticket_id to user's requested_tickets array
       db
       .collection('/users')
       .doc(`${req.user.email}`)
@@ -51,29 +53,71 @@ exports.getAllTickets = (req, res) => {
     })
   };
 
-  exports.getWorkersTickets = (req, res) => {
+exports.getWorkersTickets = (req, res) => {
       let tickets = []
-      for(let ticket_id in req.worker.assigned_tickets)
+
+      if(!req.worker.assigned_tickets)
       {
-        //console.log()
-        db
-        .collection('/tickets')
-        .doc(req.worker.assigned_tickets[ticket_id])
-        .get()
-        .then( doc => {
-          tickets.push(doc.data());
-          if(Number(ticket_id) === req.worker.assigned_tickets.length - 1)
-          {
-            return res.json(tickets);
-          }
-        })
-        .catch( err => {
-          console.error(err);
-        })
+        return res.status(400).json({error: "This worker has no assigned tickets"})
       }
+      else
+      {
+        for(let ticket_id in req.worker.assigned_tickets)
+        {
+          //console.log(req.user.requested_tickets)
+          db
+          .collection('/tickets')
+          .doc(req.worker.assigned_tickets[ticket_id])
+          .get()
+          .then( doc => {
+          //console.log(doc.data());
+            tickets.push(doc.data());
+            if(Number(ticket_id) === req.worker.assigned_tickets.length - 1)
+            {
+              return res.json(tickets);
+            }
+          })
+          .catch( err => {
+            console.error(err);
+          })
+        }
+      }
+
   };
 
-  exports.closeTicket = (req, res) => {
+exports.getTenantTickets = (req, res) => {
+      let tickets = []
+
+      if(!req.user.requested_tickets)
+      {
+        return res.status(400).json({error: "This user has no requested tickets"})
+      }
+      else
+      {
+        for(let ticket_id in req.user.requested_tickets)
+        {
+          //console.log(req.user.requested_tickets)
+          db
+          .collection('/tickets')
+          .doc(req.user.requested_tickets[ticket_id])
+          .get()
+          .then( doc => {
+            //console.log(doc.data());
+            tickets.push(doc.data());
+            if(Number(ticket_id) === req.user.requested_tickets.length - 1)
+            {
+              return res.json(tickets);
+            }
+          })
+          .catch( err => {
+            console.error(err);
+          })
+        }
+      }
+
+  };
+
+exports.closeTicket = (req, res) => {
     const document = db.doc(`/tickets/${req.params.ticket_id}`);
     document
       .get()
