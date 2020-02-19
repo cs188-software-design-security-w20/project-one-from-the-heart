@@ -19,6 +19,7 @@ module.exports = (req, res, next) => {
     .then((decodedToken) => {
       req.user = decodedToken;
 
+      console.log(req.user)
        return db
         .collection('users')
         .where('email', '==', req.user.email)
@@ -26,7 +27,8 @@ module.exports = (req, res, next) => {
         .get()
     })
     .then((data) => {
-      //console.log(data.docs[0].data())
+      //console.log(data);
+
       req.user.user_id = data.docs[0].data().user_id;
       if(data.docs[0].data().requested_tickets)
         req.user.requested_tickets = data.docs[0].data().requested_tickets;

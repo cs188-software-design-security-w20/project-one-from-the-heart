@@ -90,15 +90,14 @@ if(!valid) return res.status(400).json(errors);
 }
 
 exports.editAccount = (req, res) => {
-  const user = {
-    email: req.body.email
-  };
 
-  const { userSettings, changedSetting, previous_email } = reduceUserSettings(user);
-  console.log(userSettings)
+  const { userSettings, changedSetting, previous_email } = reduceUserSettings(req.body);
+  //console.log(userSettings)
+
+  let update_obj = { [changedSetting] : userSettings[changedSetting] }
   db
   .doc(`/users/${previous_email}`)
-  .update(userSettings)
+  .update(update_obj)
   .then(() => {
     return res.json({message: `Updated ${changedSetting} successfully` })
   })

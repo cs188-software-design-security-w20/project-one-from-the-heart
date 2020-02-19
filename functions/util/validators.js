@@ -53,8 +53,7 @@ const isEmail = (email) => {
     if(isEmpty(data.password)) errors.password = 'Must not be empty';
 
     db
-    .collection('users')
-    .doc(data.email)
+    .doc(`/users/${data.email}`)
     .get()
     .then(doc => {
       //console.log(doc.data())
@@ -86,7 +85,12 @@ const isEmail = (email) => {
   }
 
 exports.reduceUserSettings = (data) => {
-    let userSettings = {}
+    let userSettings = {
+      full_name: '',
+      email: '',
+      address: '',
+      password: ''
+    }
     let previous_email = data.email
     let changedSetting = ""
     //console.log(data)
@@ -94,22 +98,22 @@ exports.reduceUserSettings = (data) => {
     if(data.change_name && !isEmpty(data.change_name))
     {
       userSettings.full_name = data.change_name;
-      changedSetting = "Full Name"
+      changedSetting = "full_name"
     }
     if(data.change_email && !isEmpty(data.change_email) && isEmail(data.change_email))
     {
       userSettings.email = data.update_email;
-      changedSetting = "Email"
+      changedSetting = "email"
     }
     if(data.change_location && !isEmpty(data.change_location))
     {
       userSettings.address = data.change_location
-      changedSetting = "Address"
+      changedSetting = "address"
     }
     if(data.change_password && !isEmpty(data.change_password) && data.change_password === data.confirm_password)
     {
       userSettings.password = data.change_password;
-      changedSetting = "Password"
+      changedSetting = "password"
     }
 
     //console.log(usersettings.full_name);
