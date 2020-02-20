@@ -19,7 +19,7 @@ exports.FBAuth = (req, res, next) => {
     .then((decodedToken) => {
       req.user = decodedToken;
 
-      console.log(req.user)
+      //console.log(req.user)
        return db
         .collection('users')
         .where('email', '==', req.user.email)
@@ -28,13 +28,15 @@ exports.FBAuth = (req, res, next) => {
     })
     .then((data) => {
       //console.log(data);
-
       req.user.user_id = data.docs[0].data().user_id;
       if(data.docs[0].data().requested_tickets)
         req.user.requested_tickets = data.docs[0].data().requested_tickets;
       req.user.email = data.docs[0].data().email;
       req.user.full_name = data.docs[0].data().full_name;
       req.user.address = data.docs[0].data().address;
+      req.user.verified_tenant = data.docs[0].data().verified_tenant;
+      req.user.verified_worker = data.docs[0].data().verified_worker;
+      req.user.verified_ll = data.docs[0].data().verified_ll;
       return next();
     })
     .catch((err) => {
@@ -67,6 +69,7 @@ exports.FBAuthWorker = (req, res, next) => {
     })
     .then((doc) => {
         req.worker.email = doc.data().email;
+        req.worker.user_id = data.docs[0].data().user_id;
         if(doc.data().assigned_tickets)
           req.worker.assigned_tickets = doc.data().assigned_tickets;
         req.worker.full_name = data.docs[0].data().full_name;
@@ -74,7 +77,7 @@ exports.FBAuthWorker = (req, res, next) => {
     })
     .catch((err) => {
       console.error('Error while verifying token ', err);
-      return res.status(403).json(err);
+      return res.status(403).json({error: 'Error while verifying token'});
   })
 };
 

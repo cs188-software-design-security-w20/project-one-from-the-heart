@@ -26,7 +26,7 @@ exports.signup = (req,res) => {
     .get()
     .then((doc) => {
         if (doc.exists){
-            return res.status(400).json({email: 'this email is already taken'});
+            return res.status(400).json({error: 'this email is already taken'});
         }else{
          return firebase
             .auth()
@@ -56,14 +56,14 @@ exports.signup = (req,res) => {
     })
     .then(() => {
       res.set('Access-Control-Allow-Origin', '*');
-      return res.status(201).json({ token });
+      return res.status(201).json({general: 'Successful signup. Please login with the same credentials'});
     })
     .catch((err)=>{
         console.error(err);
         if (err.code === 'auth/email-already-in-use') {
-          return res.status(400).json({ email: 'email is already in use'})
+          return res.status(400).json({ error: 'email is already in use'})
         }
-        return res.status(500).json({general: 'Something went wrong, please try again'});
+        return res.status(500).json({error: 'Something went wrong, please try again'});
     });
 }
 
@@ -73,51 +73,108 @@ exports.login = (req, res) => {
       password: req.body.password
     };
 
-const{ valid, verified, errors } = validateLoginData(user);
+//const{ valid, verified, errors }
+validateLoginData(user)
+.then(data => {
+  const {valid, verified, errors} = data
+  if(!valid) return res.status(400).json(errors);
+  //console.log()
+  if(!verified)
+  {
+    let errors = { error: "Wrong credentials" }
+    return res.status(400).json(errors)
+  }
+})
+.catch(err => {
+  console.error(err)
+  let errors = { error: "Something went wrong during validation" }
+  return res.status(400).json(errors)
+})
 
-if(!valid) return res.status(400).json(errors);
 
-  firebase.auth().signInWithEmailAndPassword(user.email,user.password)
+firebase.auth().signInWithEmailAndPassword(user.email,user.password)
   .then(data=>{
     return data.user.getIdToken();
   })
   .then(token=>{
-    return res.json({token, verified});
+    return res.json({token});
   })
   .catch(err=>{
-    console.error(err);
+    console.error(err)
+    let errors = {
+      error: "wrong credentials"
+    }
       return res
           .status(403)
-          .json({general: 'Wrong credentials, please try again'});
+          .json(errors);
   });
 }
 
 exports.editAccount = (req, res) => {
 
-  const { userSettings, changedSetting, previous_email } = reduceUserSettings(req.body);
+  const { userSettings, changedSetting } = reduceUserSettings(req.body);
   //console.log(userSettings)
+  if(req.user.verified_worker)
+  {
+    db
+    .doc(`/workers/${req.user.email}`)
+    .delete()
+    .catch(err => {
+      console.log(error);
+      return res.status(400).json({error: 'Unable to delete worker'})
+    })
+  }
+  //console.log(userSettings[changedSetting])
+  if(changedSetting == "password")
+  {
+    var user = firebase.auth().currentUser;
+    //console.log(user)
+    user.updatePassword(userSettings[changedSetting])
+    .then(function() {
+      return res.status(200).json({general: "Successfully updated password"})
+    }).catch(err => {
+      console.error(err)
+      return res.status(400).json({error: 'Unable to change password'})
+    });
+  }
+  else
+  {
 
-  let update_obj = { [changedSetting] : userSettings[changedSetting] }
-  db
-  .doc(`/users/${previous_email}`)
-  .update(update_obj)
-  .then(() => {
-    return res.json({message: `Updated ${changedSetting} successfully` })
-  })
-  .catch(err => {
-    console.error(err)
-    return res.status(400).json({general: `Please enter valid ${changedSetting}` })
-  })
+    let update_obj = { [changedSetting] : userSettings[changedSetting],
+                        verified_worker: false}
+    console.log(update_obj)
+    db
+    .doc(`/users/${req.user.email}`)
+    .update(update_obj)
+    .then(() => {
+      return res.json({message: `Updated ${changedSetting} successfully` })
+    })
+    .catch(err => {
+      console.error(err)
+      return res.status(400).json({error: `Please enter valid ${changedSetting}` })
+    })
+  }
 }
 
 exports.viewProfile = (req, res) => {
   db
-  .doc(`/users/${req.params.email}`)
+  .doc(`users/${req.user.email}`)
   .get()
-  .then((doc) => {
-    return res.json(doc.data())
-  })
-  .catch(err => {
-    console.error(err)
-  })
+    .then( data => {
+      let profile = [];
+      data.forEach((doc) => {
+        profile.push({
+        address: doc.data().address,
+        created_at: doc.data().created_at,
+        email: doc.data().email,
+        user_id: doc.data().user_id,
+        verified_ll: doc.data().verified_ll,
+        verified_tenant: doc.data().verified_tenant,
+        verified_worker: doc.data().verified_worker,
+        full_name: doc.data().full_name
+      });
+    });
+      return res.json(profile);
+    })
+    .catch(err => console.error(err));
 }

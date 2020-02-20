@@ -6,9 +6,9 @@ const { FBAuth, FBAuthWorker, FBAuthLL } = require('./util/fbAuth');
 const cors = require('cors');
 app.use(cors());
 
-const { getAllTickets, postOneTicket, getWorkersTickets, getTenantTickets, deleteTicket } = require('./handlers/tickets');
+const { getAllTickets, postOneTicket, getAssignedTickets, getUnnassignedTickets, getTenantTickets, deleteTicket } = require('./handlers/tickets');
 const{signup, login, editAccount, viewProfile} = require('./handlers/users');
-const { verifyWorker } = require('./handlers/landlord')
+const { verifyWorker, verifyTenant, suspendTenant, suspendWorker } = require('./handlers/landlord')
 const { closeTicket, assignTicket, unassignTicket } = require('./handlers/worker')
 
 // // https://firebase.google.com/docs/functions/write-firebase-functions
@@ -26,22 +26,28 @@ app.post('/ticket', FBAuth, postOneTicket);
 app.post('/signup', signup);
 app.post('/login', login);
 app.post('/edit_account', FBAuth, editAccount);
-app.get('/view_Profile/:email',viewProfile);
+app.get('/view_profile',FBAuth, viewProfile);
+//app.post('/delete_account', FBAuth, deleteAccount)
 
 //Tenant Routes
 app.get('/tenant_tickets', FBAuth, getTenantTickets);
 
 //Worker Routes
-app.get('/worker_tickets', FBAuthWorker, getWorkersTickets);
-app.get('/close_ticket/:ticket_id', FBAuthWorker, closeTicket);
-app.get('/assignTicket/:ticket_id', FBAuthWorker, assignTicket);
-app.get('/unassignTicket/:ticket_id',FBAuthWorker, unassignTicket);
+app.get('/assigned_tickets', FBAuthWorker, getAssignedTickets);
+app.get('/unnassigned_tickets', FBAuthWorker, getUnnassignedTickets);
+app.post('/close_ticket/:ticket_id', FBAuthWorker, closeTicket);
+app.post('/assign_ticket/:ticket_id', FBAuthWorker, assignTicket);
+app.post('/unassign_ticket/:ticket_id',FBAuthWorker, unassignTicket);
 
 //Landlord Routes
-//app.post('/verify_tenant', FBAuthLL, verifyTenant);
-app.get('/verify_worker/:worker_email', FBAuthLL, verifyWorker);
-// app.post('/suspend_tenant', FBAuthLL, suspendTenant);
-// app.post('/suspend_worker', FBAuthLL, suspendWorker);
+app.post('/verify_tenant/:tenant_email', FBAuthLL, verifyTenant);
+app.post('/verify_worker/:worker_email', FBAuthLL, verifyWorker);
+app.post('/suspend_tenant/:tenant_email', FBAuthLL, suspendTenant);
+app.post('/suspend_worker/:worker_email', FBAuthLL, suspendWorker);
+app.post('/assign_ticket/:ticket_id', FBAuthLL, assignTicket);
+app.post('/unassign_ticket/:ticket_id',FBAuthLL, unassignTicket);
+//app.get('/verified_users', FBAuthLL, getVerifiedUsers);
+//app.get('/unverified_users', FBAuthLL, getUnverifiedUsers);
 // app.delete('/delete_user', FBAuthLL, deleteUser);
 //app.delete('/delete_ticket/:ticket_id', FBAuthLL, deleteTicket);
 
