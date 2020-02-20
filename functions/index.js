@@ -21,6 +21,7 @@ app.delete('/ticket/:ticket_id', FBAuthWorker, closeTicket);
 // app.delete('/delete_ticket', FBAuthLL, deleteTicket);
 app.post('/ticket', FBAuth, postOneTicket);
 
+
 //User Routes
 app.post('/signup', signup);
 app.post('/login', login);
@@ -32,6 +33,8 @@ app.get('/tenant_tickets', FBAuth, getTenantTickets);
 //Worker Routes
 app.get('/worker_tickets', FBAuthWorker, getWorkersTickets);
 app.post('/close_ticket', FBAuthWorker, closeTicket);
+app.get('/scream/:ticket_id/assign', FBAuthWorker, assignTicket);
+app.get('/scream/:ticket_id/unassign', FBAuthWorker, unassignTicket);
 
 //Landlord Routes
 // app.post('/verify_tenant', FBAuthLL, verifyTenant);
