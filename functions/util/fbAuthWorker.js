@@ -16,10 +16,7 @@ module.exports = (req, res, next) => {
     .verifyIdToken(workerToken)
     .then((decodedToken) => {
       req.worker = decodedToken;
-      //if (req.worker.user_type !== "worker")
-      // {
-          //throw an error
-      // } else {
+
     return db
     .collection('workers')
     .doc(req.worker.email)

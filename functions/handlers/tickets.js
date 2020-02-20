@@ -25,12 +25,10 @@ exports.getAllTickets = (req, res) => {
 
 exports.postOneTicket = (req, res) => {
     const newTicket = {
-      address: req.body.address,
+      address: req.user.address,
       description: req.body.description,
-      priority: 1,
       submit_time: new Date().toISOString(),
-      special_insns: req.body.special_insns,
-      full: req.body.full_name
+      full_name: req.user.full_name
     };
 
     //add ticket to tickets collection
@@ -45,7 +43,7 @@ exports.postOneTicket = (req, res) => {
       .update({
         requested_tickets: admin.firestore.FieldValue.arrayUnion(`${doc.id}`)
       });
-      return res.json({message: `document ${doc.id} created successfully`});
+      return res.json({message: 'Ticket created successfully'});
     })
     .catch( err => {
       res.status(500).json({error: 'something went wrong'});
@@ -117,7 +115,7 @@ exports.getTenantTickets = (req, res) => {
 
   };
 
-exports.closeTicket = (req, res) => {
+exports.deleteTicket = (req, res) => {
     const document = db.doc(`/tickets/${req.params.ticket_id}`);
     document
       .get()

@@ -45,7 +45,10 @@ exports.signup = (req,res) => {
           created_at: new Date().toISOString(),
           user_id: userId,
           full_name: newUser.full_name,
-          address: newUser.address
+          address: newUser.address,
+          verified_tenant: false,
+          verified_worker: false,
+          verified_ll: false
         }
         //maybe unsafe to use string eval here
         return db.doc(`/users/${newUser.email}`).set(userCredentials);
@@ -90,15 +93,14 @@ if(!valid) return res.status(400).json(errors);
 }
 
 exports.editAccount = (req, res) => {
-  const user = {
-    email: req.body.email
-  };
 
-  const { userSettings, changedSetting, previous_email } = reduceUserSettings(user);
-  console.log(userSettings)
+  const { userSettings, changedSetting, previous_email } = reduceUserSettings(req.body);
+  //console.log(userSettings)
+
+  let update_obj = { [changedSetting] : userSettings[changedSetting] }
   db
   .doc(`/users/${previous_email}`)
-  .update(userSettings)
+  .update(update_obj)
   .then(() => {
     return res.json({message: `Updated ${changedSetting} successfully` })
   })
