@@ -44,12 +44,12 @@ app.post('/verify_tenant/:tenant_email', FBAuthLL, verifyTenant);
 app.post('/verify_worker/:worker_email', FBAuthLL, verifyWorker);
 app.post('/suspend_tenant/:tenant_email', FBAuthLL, suspendTenant);
 app.post('/suspend_worker/:worker_email', FBAuthLL, suspendWorker);
-app.post('/assign_ticket/:ticket_id', FBAuthLL, assignTicket);
-app.post('/unassign_ticket/:ticket_id',FBAuthLL, unassignTicket);
 //app.get('/verified_users', FBAuthLL, getVerifiedUsers);
 //app.get('/unverified_users', FBAuthLL, getUnverifiedUsers);
 // app.delete('/delete_user', FBAuthLL, deleteUser);
 //app.delete('/delete_ticket/:ticket_id', FBAuthLL, deleteTicket);
+// app.post('/assign_ticket/:ticket_id', FBAuthLL, assignTicket);
+// app.post('/unassign_ticket/:ticket_id',FBAuthLL, unassignTicket);
 
 
 exports.api = functions.https.onRequest(app);

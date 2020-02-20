@@ -161,20 +161,18 @@ exports.viewProfile = (req, res) => {
   .doc(`users/${req.user.email}`)
   .get()
     .then( data => {
-      let profile = [];
-      data.forEach((doc) => {
-        profile.push({
-        address: doc.data().address,
-        created_at: doc.data().created_at,
-        email: doc.data().email,
-        user_id: doc.data().user_id,
-        verified_ll: doc.data().verified_ll,
-        verified_tenant: doc.data().verified_tenant,
-        verified_worker: doc.data().verified_worker,
-        full_name: doc.data().full_name
-      });
-    });
-      return res.json(profile);
-    })
-    .catch(err => console.error(err));
+        let profile = {
+        address: data.data().address,
+        created_at:  data.data().created_at,
+        email: data.data().email,
+        user_id:  data.data().user_id,
+        verified_ll: data.data().verified_ll,
+        verified_tenant: data.data().verified_tenant,
+        verified_worker: data.data().verified_worker,
+        full_name: data.data().full_name
+      }
+
+        return res.status(200).json(profile);
+      })
+      .catch(err => console.error(err));
 }
