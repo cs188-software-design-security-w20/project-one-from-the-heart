@@ -48,63 +48,64 @@ const isEmail = (email) => {
   exports.validateLoginData = (data) => {
     let errors = {}
     let verified = {}
+    var verified_tenant = false;
+    var verified_worker = false;
+    var verified_ll = false;
 
     if(isEmpty(data.email)) errors.email = 'Must not be empty';
     if(isEmpty(data.password)) errors.password = 'Must not be empty';
 
-    db
+    return db
     .doc(`/users/${data.email}`)
     .get()
     .then(doc => {
       //console.log(doc.data())
-      if(doc.data().verified_worker == true)
+      if(doc.data().verified_tenant || doc.data().verified_ll || doc.data.verified_worker)
       {
-        verified.verified_worker = true;
-        verified.verified_tenant = false;
-      }
-      else if(doc.data().verified_tenant == true)
-      {
-        verified.verified_tenant = true;
-        verified.verified_worker = false;
+        return {
+            errors,
+            verified: true,
+            valid: Object.keys(errors).length === 0 ? true : false
+        }
       }
       else
       {
-        verified.verified_tenant = false;
-        verified.verified_worker = false;
+        return {
+            errors,
+            verified: false,
+            valid: Object.keys(errors).length === 0 ? true : false
+        }
       }
+
+    })
+    .then(data => {
+      return data;
     })
     .catch(err => {
       console.error(err)
     })
 
-    return {
-        errors,
-        verified,
-        valid: Object.keys(errors).length === 0 ? true : false
-    }
+
   }
 
 exports.reduceUserSettings = (data) => {
     let userSettings = {
       full_name: '',
-      email: '',
       address: '',
       password: ''
     }
-    let previous_email = data.email
     let changedSetting = ""
-    //console.log(data)
 
     if(data.change_name && !isEmpty(data.change_name))
     {
       userSettings.full_name = data.change_name;
       changedSetting = "full_name"
     }
-    if(data.change_email && !isEmpty(data.change_email) && isEmail(data.change_email))
-    {
-      userSettings.email = data.update_email;
-      changedSetting = "email"
-    }
+    // if(data.change_email && !isEmpty(data.change_email) && isEmail(data.change_email))
+    // {
+    //   userSettings.email = data.update_email;
+    //   changedSetting = "email"
+    // }
     if(data.change_location && !isEmpty(data.change_location))
     {
       userSettings.address = data.change_location
@@ -120,7 +121,6 @@ exports.reduceUserSettings = (data) => {
 
     return {
       userSettings,
-      changedSetting,
-      previous_email
+      changedSetting
     }
   }

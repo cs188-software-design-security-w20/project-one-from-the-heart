@@ -12,10 +12,10 @@ exports.getAllTickets = (req, res) => {
           ticket_id: doc.id,
           address: doc.data().address,
           description: doc.data().description,
-          priority: doc.data().priority,
           submit_time: doc.data().submit_time,
-          special_insns: doc.data().special_insns,
-          full_name: doc.data().full_name
+          full_name: doc.data().full_name,
+          is_closed: doc.data().is_closed,
+          is_assigned: doc.data().is_assigned
         });
       });
         return res.json(tickets);
@@ -28,7 +28,9 @@ exports.postOneTicket = (req, res) => {
       address: req.user.address,
       description: req.body.description,
       submit_time: new Date().toISOString(),
-      full_name: req.user.full_name
+      full_name: req.user.full_name,
+      is_assigned: false,
+      is_closed: false
     };
 
     //add ticket to tickets collection
@@ -51,7 +53,7 @@ exports.postOneTicket = (req, res) => {
     })
   };
 
-exports.getWorkersTickets = (req, res) => {
+exports.getAssignedTickets = (req, res) => {
       let tickets = []
 
       if(!req.worker.assigned_tickets)
@@ -82,6 +84,30 @@ exports.getWorkersTickets = (req, res) => {
       }
 
   };
+
+  exports.getUnnassignedTickets = (req, res) => {
+    db
+    .collection('tickets')
+    .orderBy('submit_time', 'desc')
+    .where('is_assigned', '==', false)
+    .get()
+      .then( data => {
+        let tickets = [];
+        data.forEach((doc) => {
+          tickets.push({
+          ticket_id: doc.id,
+          address: doc.data().address,
+          description: doc.data().description,
+          priority: doc.data().priority,
+          submit_time: doc.data().submit_time,
+          special_insns: doc.data().special_insns,
+          full_name: doc.data().full_name
+        });
+      });
+        return res.json(tickets);
+      })
+      .catch(err => console.error(err));
+};
 
 exports.getTenantTickets = (req, res) => {
       let tickets = []
