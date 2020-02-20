@@ -7,7 +7,7 @@ const cors = require('cors');
 app.use(cors());
 
 const { getAllTickets, postOneTicket, getWorkersTickets, getTenantTickets, deleteTicket } = require('./handlers/tickets');
-const{signup, login, editAccount} = require('./handlers/users');
+const{signup, login, editAccount, viewProfile} = require('./handlers/users');
 const { verifyWorker } = require('./handlers/landlord')
 const { closeTicket, assignTicket, unassignTicket } = require('./handlers/worker')
 
@@ -26,6 +26,7 @@ app.post('/ticket', FBAuth, postOneTicket);
 app.post('/signup', signup);
 app.post('/login', login);
 app.post('/edit_account', FBAuth, editAccount);
+app.get('/view_Profile/:email',viewProfile);
 
 //Tenant Routes
 app.get('/tenant_tickets', FBAuth, getTenantTickets);

@@ -109,3 +109,15 @@ exports.editAccount = (req, res) => {
     return res.status(400).json({general: `Please enter valid ${changedSetting}` })
   })
 }
+
+exports.viewProfile = (req, res) => {
+  db
+  .doc(`/users/${req.params.email}`)
+  .get()
+  .then((doc) => {
+    return res.json(doc.data())
+  })
+  .catch(err => {
+    console.error(err)
+  })
+}
