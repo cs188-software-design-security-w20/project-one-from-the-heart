@@ -9,7 +9,7 @@ app.use(cors());
 const { getAllTickets, postOneTicket, getWorkersTickets, getTenantTickets, deleteTicket } = require('./handlers/tickets');
 const{signup, login, editAccount} = require('./handlers/users');
 const { verifyWorker } = require('./handlers/landlord')
-const { closeTicket } = require('./handlers/worker')
+const { closeTicket, assignTicket, unassignTicket } = require('./handlers/worker')
 
 // // https://firebase.google.com/docs/functions/write-firebase-functions
 
@@ -33,6 +33,8 @@ app.get('/tenant_tickets', FBAuth, getTenantTickets);
 //Worker Routes
 app.get('/worker_tickets', FBAuthWorker, getWorkersTickets);
 app.get('/close_ticket/:ticket_id', FBAuthWorker, closeTicket);
+app.get('/assignTicket/:ticket_id', FBAuthWorker, assignTicket);
+app.get('/unassignTicket/:ticket_id',FBAuthWorker, unassignTicket);
 
 //Landlord Routes
 //app.post('/verify_tenant', FBAuthLL, verifyTenant);

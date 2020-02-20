@@ -36,5 +36,68 @@ exports.closeTicket = (req,res) => {
   .catch(err => {
     console.error(err)
   })
+}
+
+exports.assignTicket = (req,res) => {
+
+  let ticket_id = req.params.ticket_id
+  //console.log(ticket_id)
+  let assignTicket = { is_assigned: true }
+
+  db
+  .doc(`/tickets/${req.params.ticket_id}`)
+  .update(assignTicket)
+  .then(() => {
+    console.log(`assigned ticket ${req.params.ticket_id} successfully`)
+  })
+  .catch(err => {
+    console.error(err)
+  })
+
+  db
+  .collection('/workers')
+  .doc(req.worker.email)
+  .update({
+      assigned_tickets: admin.firestore.FieldValue.arrayUnion(ticket_id)
+    })
+  .then(() => {
+      console.log(`send ticket ${req.params.ticket_id} to worker`)
+      return res.status(200).json({general: 'assigned ticket successfully'})
+  })
+  .catch(err => {
+    console.error(err)
+  })
+
+}
+
+exports.unassignTicket = (req,res) => {
+
+  let ticket_id = req.params.ticket_id
+  //console.log(ticket_id)
+  let unassignTicket = { is_assigned: false }
+
+  db
+  .doc(`/tickets/${req.params.ticket_id}`)
+  .update(unassignTicket)
+  .then(() => {
+    console.log(`unassigned ticket ${req.params.ticket_id} successfully`)
+  })
+  .catch(err => {
+    console.error(err)
+  })
+
+  db
+  .collection('/workers')
+  .doc(req.worker.email)
+  .update({
+      assigned_tickets: admin.firestore.FieldValue.arrayRemove(ticket_id)
+    })
+  .then(() => {
+      console.log(`unassigned ticket ${req.params.ticket_id} to finished`)
+      return res.status(200).json({general: 'unassigned ticket successfully'})
+  })
+  .catch(err => {
+    console.error(err)
+  })
 
 }
