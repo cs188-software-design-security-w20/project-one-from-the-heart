@@ -163,12 +163,7 @@ exports.viewProfile = (req, res) => {
     .then( data => {
         let profile = {
         address: data.data().address,
-        created_at:  data.data().created_at,
         email: data.data().email,
-        user_id:  data.data().user_id,
-        verified_ll: data.data().verified_ll,
-        verified_tenant: data.data().verified_tenant,
-        verified_worker: data.data().verified_worker,
         full_name: data.data().full_name
       }
 
