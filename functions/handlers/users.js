@@ -171,3 +171,24 @@ exports.viewProfile = (req, res) => {
       })
       .catch(err => console.error(err));
 }
+
+exports.deleteAccount = (req, res) => {
+  const document = db.doc(`/users/${req.user.email}`);
+    document
+      .get()
+      .then((doc) => {
+        if (!doc.exists) {
+          return res.status(404).json({ error: 'User not found' });
+        }
+        else {
+          return document.delete();
+        }
+      })
+      .then(() => {
+        res.json({ message: 'User delete successfully' });
+      })
+      .catch((err) => {
+        console.error(err);
+        return res.status(500).json({ error: err.code });
+      });
+}
