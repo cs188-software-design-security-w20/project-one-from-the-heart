@@ -19,6 +19,7 @@ exports.signup = (req,res) => {
 
     const{ valid, errors } = validateSignupData(newUser);
 
+
     if(!valid) return res.status(400).json(errors);
 
     let token, userId;
@@ -26,7 +27,7 @@ exports.signup = (req,res) => {
     .get()
     .then((doc) => {
         if (doc.exists){
-            return res.status(400).json({error: 'this email is already taken'});
+            return res.status(402).json({error: 'this email is already taken'});
         }else{
          return firebase
             .auth()
@@ -50,20 +51,19 @@ exports.signup = (req,res) => {
           verified_worker: false,
           verified_ll: false
         }
-        //maybe unsafe to use string eval here
         return db.doc(`/users/${newUser.email}`).set(userCredentials);
 
     })
     .then(() => {
       res.set('Access-Control-Allow-Origin', '*');
-      return res.status(201).json({general: 'Successful signup. Please login with the same credentials'});
+      return res.status(200).json({general: 'Successful signup. Please login with the same credentials'});
     })
     .catch((err)=>{
         console.error(err);
         if (err.code === 'auth/email-already-in-use') {
-          return res.status(400).json({ error: 'email is already in use'})
+          return res.status(402).json({ error: 'email is already in use'})
         }
-        return res.status(500).json({error: 'Something went wrong, please try again'});
+        return res.status(500).json({error: 'Internal server error. Please try again'});
     });
 }
 
@@ -77,18 +77,18 @@ exports.login = (req, res) => {
 validateLoginData(user)
 .then(data => {
   const {valid, verified, errors} = data
-  if(!valid) return res.status(400).json(errors);
+  if(!valid) return res.status(405).json(errors);
   //console.log()
   if(!verified)
   {
-    let errors = { error: "Wrong credentials" }
-    return res.status(400).json(errors)
+    let errors = { error: "Not verified by landlord" }
+    return res.status(405).json(errors)
   }
 })
 .catch(err => {
   console.error(err)
   let errors = { error: "Something went wrong during validation" }
-  return res.status(400).json(errors)
+  return res.status(405).json(errors)
 })
 
 
@@ -97,16 +97,38 @@ firebase.auth().signInWithEmailAndPassword(user.email,user.password)
     return data.user.getIdToken();
   })
   .then(token=>{
-    return res.json({token});
+    db.doc(`users/${user.email}`).get()
+    .then(data => {
+      let user_type = ''
+      if( data.data().verified_tenant)
+      {
+          user_type = "tenant"
+      }
+      else if( data.data().verified_worker)
+      {
+          user_type = "worker"
+      }
+      else if(data.data().verified_ll)
+      {
+          user_type = "landlord"
+      }
+      if(user_type != ''){
+       return res.status(200).json({user_type, token});
+      }
+      else {
+       return res.status(405).json({error: 'Invalid login'})
+      }
+    })
+    .catch(err => {
+      return res.status(405).json({error: 'Invalid login'});
+    })
   })
   .catch(err=>{
     console.error(err)
     let errors = {
-      error: "wrong credentials"
+      error: 'Invalid credentials'
     }
-      return res
-          .status(403)
-          .json(errors);
+      return res.status(405).json(errors);
   });
 }
 
@@ -121,7 +143,7 @@ exports.editAccount = (req, res) => {
     .delete()
     .catch(err => {
       console.log(error);
-      return res.status(400).json({error: 'Unable to delete worker'})
+      return res.status(500).json({error: 'Unable to delete worker from database'})
     })
   }
   //console.log(userSettings[changedSetting])
@@ -134,7 +156,7 @@ exports.editAccount = (req, res) => {
       return res.status(200).json({general: "Successfully updated password"})
     }).catch(err => {
       console.error(err)
-      return res.status(400).json({error: 'Unable to change password'})
+      return res.status(500).json({error: 'Unable to change password'})
     });
   }
   else
@@ -142,16 +164,15 @@ exports.editAccount = (req, res) => {
 
     let update_obj = { [changedSetting] : userSettings[changedSetting],
                         verified_worker: false}
-    console.log(update_obj)
     db
     .doc(`/users/${req.user.email}`)
     .update(update_obj)
     .then(() => {
-      return res.json({message: `Updated ${changedSetting} successfully` })
+      return res.status(200).json({message: `Updated ${changedSetting} successfully` })
     })
     .catch(err => {
       console.error(err)
-      return res.status(400).json({error: `Please enter valid ${changedSetting}` })
+      return res.status(500).json({error: `Unable to update ${changedSetting}` })
     })
   }
 }
@@ -166,29 +187,38 @@ exports.viewProfile = (req, res) => {
         email: data.data().email,
         full_name: data.data().full_name
       }
-
         return res.status(200).json(profile);
       })
-      .catch(err => console.error(err));
+      .catch(err => {
+        console.error(err)
+        return res.status(500).json({error: `Cannot display profile for ${req.user.email}`})
+      });
 }
 
 exports.deleteAccount = (req, res) => {
-  const document = db.doc(`/users/${req.user.email}`);
-    document
-      .get()
-      .then((doc) => {
-        if (!doc.exists) {
-          return res.status(404).json({ error: 'User not found' });
-        }
-        else {
-          return document.delete();
-        }
-      })
+
+      // Get a reference to the storage service
+      accountRef = db.collection('users').doc(req.user.email)
+
+      // Delete the file
+      accountRef.delete()
       .then(() => {
-        res.json({ message: 'User delete successfully' });
+
+          firebase.auth().signInWithEmailAndPassword(req.user.email,req.body.password)
+          .then(data=>{
+            return data.user.getIdToken();
+          })
+          .then(token=>{
+            return res.status(200).json({general: "Successfully deleted account"})
+          })
+          .catch(err => {
+          console.error(err)
+          return res.status(405).json({ error: 'Incorrect Password' });
+        })
       })
       .catch((err) => {
         console.error(err);
-        return res.status(500).json({ error: err.code });
-      });
+        return res.status(500).json({ error: 'User not found in database' });
+      })
+
 }

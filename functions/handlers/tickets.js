@@ -18,9 +18,12 @@ exports.getAllTickets = (req, res) => {
           is_assigned: doc.data().is_assigned
         });
       });
-        return res.json(tickets);
+        return res.status(200).json(tickets);
       })
-      .catch(err => console.error(err));
+      .catch(err => {
+        console.error(err)
+        return res.status(500).json({error: 'Invalid database query'})
+      });
   }
 
 exports.postOneTicket = (req, res) => {
@@ -30,7 +33,8 @@ exports.postOneTicket = (req, res) => {
       submit_time: new Date().toISOString(),
       full_name: req.user.full_name,
       is_assigned: false,
-      is_closed: false
+      is_closed: false,
+      ticket_id: ''
     };
 
     //add ticket to tickets collection
@@ -40,15 +44,21 @@ exports.postOneTicket = (req, res) => {
     .then(doc => {
       //add ticket_id to user's requested_tickets array
       db
+      .collection('/tickets')
+      .doc(`${doc.id}`)
+      .update({
+        ticket_id : doc.id
+      })
+      db
       .collection('/users')
       .doc(`${req.user.email}`)
       .update({
         requested_tickets: admin.firestore.FieldValue.arrayUnion(`${doc.id}`)
       });
-      return res.json({message: 'Ticket created successfully'});
+      return res.status(200).json({message: 'Ticket created successfully'});
     })
     .catch( err => {
-      res.status(500).json({error: 'something went wrong'});
+      res.status(400).json({error: 'Invalid input'});
       console.error(err);
     })
   };
@@ -58,31 +68,34 @@ exports.getAssignedTickets = (req, res) => {
 
       if(!req.worker.assigned_tickets)
       {
-        return res.status(400).json({error: "This worker has no assigned tickets"})
+        return res.status(200).json({general: "This worker has no assigned tickets"})
       }
       else
       {
+        //console.log(req.worker.assigned_tickets)
+        const len = req.worker.assigned_tickets.length;
+
         for(let ticket_id in req.worker.assigned_tickets)
         {
-          //console.log(req.user.requested_tickets)
           db
           .collection('/tickets')
           .doc(req.worker.assigned_tickets[ticket_id])
           .get()
           .then( doc => {
-          //console.log(doc.data());
-            tickets.push(doc.data());
-            if(Number(ticket_id) === req.worker.assigned_tickets.length - 1)
+            //console.log(doc.data());
+            var data = doc.data();
+            tickets.push(data);
+            if(tickets.length === len)
             {
-              return res.json(tickets);
+              return res.status(200).json(tickets);
             }
           })
           .catch( err => {
             console.error(err);
+            return res.status(500).json({error: 'Invalid database query'})
           })
         }
       }
-
   };
 
   exports.getUnnassignedTickets = (req, res) => {
@@ -94,19 +107,21 @@ exports.getAssignedTickets = (req, res) => {
       .then( data => {
         let tickets = [];
         data.forEach((doc) => {
-          tickets.push({
-          ticket_id: doc.id,
-          address: doc.data().address,
-          description: doc.data().description,
-          priority: doc.data().priority,
-          submit_time: doc.data().submit_time,
-          special_insns: doc.data().special_insns,
-          full_name: doc.data().full_name
-        });
-      });
-        return res.json(tickets);
+          tickets.push(doc.data());
+        })
+        if(tickets)
+        {
+         return res.status(200).json(tickets);
+        }
+        else
+        {
+          return res.status(200).json({general: 'No unassigned tickets to display'})
+        }
       })
-      .catch(err => console.error(err));
+      .catch(err =>{
+        console.error(err)
+        return res.status(500).json({error: 'Could not fetch unnasigned tickets'})
+      });
 };
 
 exports.getTenantTickets = (req, res) => {
@@ -114,7 +129,7 @@ exports.getTenantTickets = (req, res) => {
 
       if(!req.user.requested_tickets)
       {
-        return res.status(400).json({error: "This user has no requested tickets"})
+        return res.status(200).json({general: "This user has no requested tickets"})
       }
       else
       {
@@ -128,13 +143,14 @@ exports.getTenantTickets = (req, res) => {
           .then( doc => {
             //console.log(doc.data());
             tickets.push(doc.data());
-            if(Number(ticket_id) === req.user.requested_tickets.length - 1)
+            if(tickets.length === req.user.requested_tickets.length)
             {
-              return res.json(tickets);
+              return res.status(200).json(tickets);
             }
           })
           .catch( err => {
             console.error(err);
+            return res.status(500).json({error: "Could not fetch tenant tickets"});
           })
         }
       }
@@ -154,10 +170,10 @@ exports.deleteTicket = (req, res) => {
         }
       })
       .then(() => {
-        res.json({ message: 'Ticket closed successfully' });
+        return res.status(200).json({general: `Ticket ${req.params.ticket_id} deleted successfully`})
       })
       .catch((err) => {
         console.error(err);
-        return res.status(500).json({ error: err.code });
+        return res.status(500).json({ error: 'Server error. Ticket could not be deleted' });
       });
   };

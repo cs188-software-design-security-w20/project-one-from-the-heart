@@ -10,7 +10,7 @@ exports.FBAuth = (req, res, next) => {
     idToken = req.headers.authorization.split('Bearer ')[1];
   } else {
     console.error('No token found');
-    return res.status(403).json({ error: 'Unauthorized' });
+    return res.status(405).json({ error: 'Unauthorized' });
   }
 
   admin
@@ -41,7 +41,7 @@ exports.FBAuth = (req, res, next) => {
     })
     .catch((err) => {
       console.error('Error while verifying token ', err);
-      return res.status(403).json(err);
+      return res.status(500).json({error: 'Server error while verifying token'});
     });
 };
 
@@ -54,7 +54,7 @@ exports.FBAuthWorker = (req, res, next) => {
     workerToken = req.headers.authorization.split('Bearer ')[1];
   } else {
     console.error('No token found');
-    return res.status(403).json({ error: 'Unauthorized' });
+    return res.status(405).json({ error: 'Unauthorized' });
   }
   admin
     .auth()
@@ -62,22 +62,22 @@ exports.FBAuthWorker = (req, res, next) => {
     .then((decodedToken) => {
       req.worker = decodedToken;
 
-    return db
-    .collection('workers')
-    .doc(req.worker.email)
-    .get()
+      return db
+      .collection('workers')
+      .doc(req.worker.email)
+      .get()
     })
     .then((doc) => {
         req.worker.email = doc.data().email;
-        req.worker.user_id = data.docs[0].data().user_id;
+        req.worker.user_id = doc.data().user_id;
         if(doc.data().assigned_tickets)
           req.worker.assigned_tickets = doc.data().assigned_tickets;
-        req.worker.full_name = data.docs[0].data().full_name;
+        req.worker.full_name = doc.data().full_name;
         return next();
     })
     .catch((err) => {
       console.error('Error while verifying token ', err);
-      return res.status(403).json({error: 'Error while verifying token'});
+      return res.status(500).json({error: 'Server error while verifying token'});
   })
 };
 
@@ -90,7 +90,7 @@ exports.FBAuthLL = (req, res, next) => {
     landlordToken = req.headers.authorization.split('Bearer ')[1];
   } else {
     console.error('No token found');
-    return res.status(403).json({ error: 'Unauthorized' });
+    return res.status(405).json({ error: 'Unauthorized' });
   }
   admin
     .auth()
@@ -110,6 +110,6 @@ exports.FBAuthLL = (req, res, next) => {
     })
     .catch((err) => {
       console.error('Error while verifying token ', err);
-      return res.status(403).json(err);
+      return res.status(500).json({error: 'Server error while verifying token'});
   })
 };

@@ -60,7 +60,7 @@ const isEmail = (email) => {
     .get()
     .then(doc => {
       //console.log(doc.data())
-      if(doc.data().verified_tenant || doc.data().verified_ll || doc.data.verified_worker)
+      if(doc.data().verified_tenant || doc.data().verified_ll || doc.data().verified_worker)
       {
         return {
             errors,
