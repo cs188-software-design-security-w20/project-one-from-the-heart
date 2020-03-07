@@ -5,6 +5,9 @@ const { FBAuth, FBAuthWorker, FBAuthLL } = require('./util/fbAuth');
 //CORS
 const cors = require('cors');
 app.use(cors());
+//HELMET
+const helmet = require('helmet');
+app.use(helmet());
 
 const { getAllTickets, postOneTicket, getAssignedTickets, getUnnassignedTickets, getTenantTickets, deleteTicket } = require('./handlers/tickets');
 const{ signup, login, editAccount, viewProfile, deleteAccount } = require('./handlers/users');
