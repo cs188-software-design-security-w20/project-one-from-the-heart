@@ -3,8 +3,10 @@
 Maintenance Genie is a tool to help landlords, workers, and tenants manage their maintenance needs! Whether it is a broken toaster or a clogged up shower drain, Maintenance Genie is here to help! Tenants simply submit a maintenance request through our online portal, then those maintenance requests enter a queue for service workers to assign to themselves and complete in a timely manner. Once a job has been finished, the ticket is closed and the tenant can see all the jobs that have been completed for their apartment. Furthermore, landlords can verify the users on the site by either designating them as a service worker or a tenant on their home page. Any user on the online system must be verified as either a tenant or a worker before they can login. This is to ensure users that don't live in the building cannot submit bogus requests!
 
 ## Install
- No installation is required for your machine as the backend API is also hosted by Google Cloud at https://us-central1-maintenance-genie.cloudfunctions.net/api/. Our frontend code accesses the backend API by making either GET or POST requests to https://us-central1-maintenance-genie.cloudfunctions.net/api/<api-endpoint>.
+### Backend
+ No installation is required for the backend because the API is hosted by Google Cloud at https://us-central1-maintenance-genie.cloudfunctions.net/api/. Our frontend code accesses the backend API by making either GET or POST requests to https://us-central1-maintenance-genie.cloudfunctions.net/api/<api-endpoint>.
 
+### Frontend
  In order to run our frontend application, first navigate to ./frontend. You will need to install [Node Package Manager](https://www.npmjs.com/get-npm) on your machine. Then run the command `npm install` to install all the relevant JavaScript packages. Finally, run `npm start` and navigate to http://localhost:3000/ in your Google Chrome browser in order to login.
 
 ## Default Accounts
