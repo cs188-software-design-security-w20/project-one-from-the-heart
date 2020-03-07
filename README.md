@@ -7,7 +7,7 @@ Maintenance Genie is a tool to help landlords, workers, and tenants manage their
  No installation is required for the backend because the API is hosted by Google Cloud at https://us-central1-maintenance-genie.cloudfunctions.net/api/. Our frontend code accesses the backend API by making either GET or POST requests to https://us-central1-maintenance-genie.cloudfunctions.net/api/<api-endpoint>.
 
 ### Frontend
- In order to run our frontend application, first navigate to ./frontend. You will need to install [Node Package Manager](https://www.npmjs.com/get-npm) on your machine. Then run the command `npm install` to install all the relevant JavaScript packages. Finally, run `npm start` and navigate to http://localhost:3000/ in your Google Chrome browser in order to login.
+ In order to run our frontend application, first navigate to ./frontend. You will need to install [Node Package Manager](https://www.npmjs.com/get-npm) on your machine. Then run the commands `npm install` and `npm i react-scripts` to install all the relevant JavaScript packages. Finally, run `npm start` and navigate to http://localhost:3000/ in your Google Chrome browser in order to login.
 
 ## Default Accounts
 In order to utilize any of the functionality of our app, you will have to be logged in. Here are some of the default logins to help get you started.
